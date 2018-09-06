@@ -5,7 +5,6 @@ from tkinter import ttk
 import speech_recognition as sr
 from tkinter import messagebox
 
-
 class Recognizer(object):
     
     def __init__(self,root):
@@ -14,7 +13,7 @@ class Recognizer(object):
         root.title('Speech Recognizer')
         root.resizable(False, False)
         root.configure(background = 'royal blue')
-        self.data='' #Not sure if I have to define data over here as an empty sting, to make it work.
+        self.data = ''
         
     # create a Frame for the Text and Scrollbar
         txt_frm = tk.Frame(self.root, width = 400, height = 200)
@@ -43,17 +42,17 @@ class Recognizer(object):
      
         ttk.Button(self.frame_content, text = 'Info',
                    command = self.info).grid(row = 4, column = 0, padx = 5, pady = 5, sticky = 'e')
-        
+
         ttk.Button(self.frame_content, text = 'Clear',
                    command = self.clear).grid(row = 4, column = 1, padx = 5, pady = 5, sticky = 'w')
         
         ttk.Button(self.frame_content, text = 'Exit',
                    command = self._quit).grid(row = 4, column = 2, padx = 5, pady = 5, sticky = 'w')
-        
-     #Button specific functions 
-      
+     
+        #Recordign Up and Down press commands
+
     def record(self):
-         
+
          self.r = sr.Recognizer()
          self.mic = sr.Microphone()
          self.mic.list_microphone_names()
@@ -63,13 +62,12 @@ class Recognizer(object):
          try:
             self.data = (self.r.recognize_google(self.audio))
             print('You just said: ' + self.data)
-            self.entry_text.insert(0.0, self.data)
+            self.entry_text.insert(0.0, '\n' + self.data)              
             return (self.data)
-      
+     
          except LookupError:                            
              self.data = "Could not understand audio"
              messagebox.showinfo(title = 'Speech Recognizer', message = 'Try again, please!.')
-
 
     def info(self):
         messagebox.showinfo(title = 'Speech Recognizer', message = 'Use "Record" button to use your mic and' 
