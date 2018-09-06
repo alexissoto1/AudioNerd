@@ -44,13 +44,6 @@ class Recognizer(object):
         ttk.Button(self.frame_content, text = 'Info',
                    command = self.info).grid(row = 4, column = 0, padx = 5, pady = 5, sticky = 'e')
         
-        #Edit here!
-# =============================================================================
-#         
-#         ttk.Button(self.frame_content, text = 'Info',
-#                    command = self.info).grid(row = 4, column = 0, padx = 5, pady = 5, sticky = 'e')
-# =============================================================================
-        
         ttk.Button(self.frame_content, text = 'Clear',
                    command = self.clear).grid(row = 4, column = 1, padx = 5, pady = 5, sticky = 'w')
         
@@ -69,7 +62,7 @@ class Recognizer(object):
              self.audio = self.r.listen(source)
          try:
             self.data = (self.r.recognize_google(self.audio))
-            print('You yous said: ' + self.data)
+            print('You just said: ' + self.data)
             self.entry_text.insert(0.0, self.data)
             return (self.data)
       
