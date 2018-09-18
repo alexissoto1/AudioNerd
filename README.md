@@ -1,2 +1,2 @@
-# AudioNerd.py
-Audio related softwares developed on Python
+# AudioNerd
+Audio related softwares
