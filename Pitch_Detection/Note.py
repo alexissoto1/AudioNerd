@@ -47,4 +47,4 @@ def get_note(volume_thresh=0.01, printOut=False):
             current = current_pitch.nameWithOctave
             queue.put({'Note': current, 'Cents': current_pitch.microtone.cents})
 
-if __name__ == '__main__': get_note(volume_thresh=0.001, printOut=True)
+if __name__ == '__main__': get_note(volume_thresh = 0.001, printOut = True)
