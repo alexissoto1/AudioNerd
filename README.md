@@ -13,3 +13,5 @@ Specifications about each software:
 
 4. Music_ON_Canvas: Draw in a blank "sheet" while creating music at the same time.
 
+5. MusicK_Kit: Tool built on librosa for sound processing and quality separation for Music Producers.
+
