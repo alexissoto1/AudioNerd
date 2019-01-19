@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import scipy
 import scipy.io.wavfile
 import librosa as lb
-
+from scipy import fftpack
 from magenta.models.nsynth import utils
 from magenta.models.nsynth.wavenet import fastgen
 #Need to install this magenta model in directory in order to execute.
@@ -107,7 +107,7 @@ def fft_unpack(x):
     return [x[i] for i in fft_index(len(x))]
 
 def fft(x):
-    X = np.fft.fft(x)
+    X = fftpack.fft(x) 
     return fft_unpack(X)
 
 def PlotEverything(sampleRate, dataR, freqDataR):
