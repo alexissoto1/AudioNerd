@@ -1,4 +1,3 @@
-
 #Some tools for sound processing and visualization.
 
 import numpy as np
@@ -59,6 +58,47 @@ def Plot_SingleFile(file_name, sampleRate):
     
     #synthesis
     fastgen.synthesize(encoding, save_paths=['gen_' + fname], samples_per_save=sample_length)
+    
+#To combine sounds (Magenta takes in representation tumbre, tonality and change over time)
+    
+def load_encoding(fname, sample_lenght = None, sr = 16000, ckpt = 'model.ckpt-200000'):
+    audio = utils.load_audio(fname, sample_length = sample_lenght, sr = sr)
+    encoding = fastgen.encode(audio, ckpt, sample_lenght)
+    return audio, encoding
+
+def Combine_Plot(file1, file2): 
+    sample_length = 20000 #Duration
+    aud1, enc1 = load_encoding(file1, sample_length)
+    aud2, enc2 = load_encoding(file2
+                               , sample_length)
+    
+    enc_mix = (enc1 + enc2)/ 2.0
+    fig, axs = plt.subplots(3, 1, figsize = (10, 7))
+    fig, axs = plt.subplots(3, 1, figsize=(10, 7))
+    axs[0].plot(enc1[0]); 
+    axs[0].set_title('Encoding 1')
+    axs[1].plot(enc2[0]);
+    axs[1].set_title('Encoding 2')
+    axs[2].plot(enc_mix[0]);
+    axs[2].set_title('Average') 
+    
+def fade(encoding, mode='in'):
+    length = encoding.shape[1]
+    fadein = (0.5 * (1.0 - np.cos(3.1415 * np.arange(length) / 
+                                  float(length)))).reshape(1, -1, 1)
+    if mode == 'in':
+        return fadein * encoding
+    else:
+        return (1.0 - fadein) * encoding
+    
+def crossfade(encoding1, encoding2):
+    return fade(encoding1, 'out') + fade(encoding2, 'in')
+    
+def Combine_Synth(file1, file2):
+    sample_length = 20000 #Duration
+    aud1, enc1 = load_encoding(file1, sample_length)
+    aud2, enc2 = load_encoding(file2, sample_length)
+    fastgen.synthesize(crossfade(enc1, enc2), save_paths = ['crossfade.wav'])
 
 def fft_index(n):
     return np.append(np.arange(n//2,n), np.arange(0, n//2))
@@ -94,11 +134,11 @@ def music(name):
     try:
         FiledataR, FiledataL = Filedata.T
     except:
-        dataR = Filedata
+        FiledataR = Filedata
         FiledataL = []
 
     freqDataR = fft(FiledataR) 
-    #freqDataL = fft(dataL)
+    #freqDataL = fft(FiledataL)
     
     Newsize = len(freqDataR)
     PlotEverything(SR, FiledataR, freqDataR)
