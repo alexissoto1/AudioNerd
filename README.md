@@ -3,7 +3,7 @@ Audio related softwares on Python
 
 Specifications about each software:
 
-1. MUTools: Simple script that implements the Magenta NSynth model by google as well as some plot visualization tools based on FFT processing. Audio files from the Magenta model as example on the "Out_Examples" folder
+1. MUTools: Simple script that implements the Magenta NSynth model by google as well as some plot visualization tools based on FFT processing. Audio files from the Magenta model as example on the "Out_Examples" folder, and graphic examples can be found in the Graphic_Results folder.
 
 2. Pitch_Detection: Recognize the pitch that you are singing to the computer. 
   - Note.py is the script for pitch detection.

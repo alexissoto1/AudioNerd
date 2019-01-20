@@ -4,14 +4,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy
 import scipy.io.wavfile
-import librosa as lb
 from scipy import fftpack
+from skimage import util
 from magenta.models.nsynth import utils
 from magenta.models.nsynth.wavenet import fastgen
 #Need to install this magenta model in directory in order to execute.
 
-fname = 'TestTone220.wav' #Put here directory of file or name.
-bit_Depth = 16000 #or bit depth of your file.
+audio_file_path = 'Sample_Audio.wav'
 
 #scipy function wavfile.read, just for sample rate in case of unknown.
 def getSampleRate(filename): 
@@ -48,7 +47,7 @@ def Plot_SingleFile(file_name, sampleRate):
     #Encoding for new sound part.
     encoding = fastgen.encode(audio, 'model.ckpt-200000', sample_length)
     print(encoding.shape)
-    np.save(fname + '.npy', encoding)
+    np.save(file_name + '.npy', encoding)
     
     fig, axs = plt.subplots(2, 1, figsize = (10,5))
     axs[0].plot(audio)
@@ -57,7 +56,7 @@ def Plot_SingleFile(file_name, sampleRate):
     axs[1].set_title('NSynth Encoding')
     
     #synthesis
-    fastgen.synthesize(encoding, save_paths=['gen_' + fname], samples_per_save=sample_length)
+    fastgen.synthesize(encoding, save_paths=['gen_' + file_name], samples_per_save=sample_length)
     
 #To combine sounds (Magenta takes in representation tumbre, tonality and change over time)
     
@@ -99,7 +98,9 @@ def Combine_Synth(file1, file2):
     aud1, enc1 = load_encoding(file1, sample_length)
     aud2, enc2 = load_encoding(file2, sample_length)
     fastgen.synthesize(crossfade(enc1, enc2), save_paths = ['crossfade.wav'])
-
+   
+    
+#Visualization!
 def fft_index(n):
     return np.append(np.arange(n//2,n), np.arange(0, n//2))
     
@@ -110,7 +111,7 @@ def fft(x):
     X = fftpack.fft(x) 
     return fft_unpack(X)
 
-def PlotEverything(sampleRate, dataR, freqDataR):
+def SinglePlot(sampleRate, dataR, freqDataR):
     plt.subplot(411)
     timeAxis = np.arange(0,len(dataR)/sampleRate,1/sampleRate)
     plt.plot(timeAxis[0:1000], dataR[0:1000])
@@ -120,25 +121,57 @@ def PlotEverything(sampleRate, dataR, freqDataR):
     plt.plot(freqAxis, freqDataR)
     
     plt.show()  
-    
-def music(name):
-    
-    Data = lb.core.load(name) #return audio time series.
-    print("audio time series: " + str(Data))
-    
-    
-    SR, Filedata = scipy.io.wavfile.read(name) 
-    print("SampleRate: " + str(SR))
 
-    print("DataLen: " + str(len(Filedata)))
+def waveFormPlot(file):
+    rate, audio = scipy.io.wavfile.read(file)
+    #audio = np.mean(audio, axis = 1) #converting file to mono by
+                            #average of left and right side.
+    N = audio.shape[0]
+    L = N/rate
+    f, ax = plt.subplots()
+    ax.plot(np.arange(N)/rate, audio)
+    ax.set_xlabel('Time: Seconds')
+    ax.set_ylabel('Amplitude')    
+    print('Audio lenght: {:.2f} seconds'.format(L))
+
+def spectogramPlot(file):
+    M = 1024 #sample number, around 0.2 seconds
+    rate, data = scipy.io.wavfile.read(file)
+    N = data.shape[0]
+    L = N/rate
+    slices = util.view_as_windows(data, window_shape = (M,), step = 1)
+    print('Audio shape: {}, Sliced audio shape: {}'.format(data.shape, slices.shape))
+    
+    win = np.hanning(M + 1)[:-1]
+    slices = slices*win
+    
+    slices = slices.T
+    print('Shape of slices:', slices.shape)
+    
+    spectrum = np.fft.fft(slices, axis = 0)[:M//2 + 1:-1]
+    spectrum = np.abs(spectrum)
+    
+    f, ax = plt.subplots(figsize = (4.8, 2.4))
+    
+    S = np.abs(spectrum)
+    S = 20*np.log10(S/np.max(S))
+    
+    ax.imshow(S, origin = 'lower', cmap = 'viridis', 
+              extent = (0, L, 0, rate/2/1000))
+    
+    ax.axis('tight')
+    ax.set_ylabel('Frequency [kHz]')
+    
+def LoadAudioAndProcess(name):
+    SR, Filedata = scipy.io.wavfile.read(name) 
     try:
         FiledataR, FiledataL = Filedata.T
     except:
         FiledataR = Filedata
         FiledataL = []
-
     freqDataR = fft(FiledataR) 
     #freqDataL = fft(FiledataL)
-    
-    Newsize = len(freqDataR)
-    PlotEverything(SR, FiledataR, freqDataR)
+    SinglePlot(SR, FiledataR, freqDataR)
+
+waveFormPlot(audio_file_path)
+spectogramPlot(audio_file_path)
